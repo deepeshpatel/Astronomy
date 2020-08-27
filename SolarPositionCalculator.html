@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solar Position Calculator</title>
+    <script language="JavaScript" src="script/calculator.js"></script>
+    <script language="JavaScript" src="script/google-charts/SunPathChart.js"></script>
+    <script language="JavaScript" src="script/google-charts/AnalemmaChart.js"></script>
+    <script language="JavaScript" src="script/google-charts/SunDialChart.js"></script>
+    <script language="JavaScript" src="script/ui-controls.js"></script>
+    <script language="JavaScript" src="script/d3-charts/SunPathD3.js"></script>
+
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', {'packages':['corechart']});
+    </script>
+
+</head>
+<style>
+
+    .data{
+        outline-width: 4px;
+        background-color: lightblue;
+    }
+
+    .grid line {
+        stroke: lightgrey;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+    }
+
+    .grid path {
+        stroke-width: 0;
+    }
+
+</style>
+<body onload="init()">
+
+
+<form name="formCalc" id="formCalc" >
+
+    <H1>Solar Position Calculator</H1>
+    <table>
+        <tr><td>
+            <table class="data">
+                <tr>
+                    <td><label for="latitude">Latitude:</label></td>
+                    <td><input type="text" id="latitude" name="latitude" value="18.5204"></td>
+                    <td><input type="range" min="-90" max="90" value="18.5204" class="slider" id="latSlider" name="latSlider" oninput="latSliderMoved()"></td>
+                </tr>
+
+                <tr>
+                    <td><label for="longitude">Longitude:</label></td>
+                    <td><input type="text" id="longitude" name="longitude" value ="73.8567" disabled></td>
+                </tr>
+
+                <tr>
+                    <td><label for="date">Date:</label></td>
+                    <td> <input type="date" id="date" name="date" value="2020-09-22" oninput="dateChanged()"></td>
+                    <td><input type="range" min="1" max="365" value="265" class="slider" id="dateSlider" name="dateSlider" oninput="dateSliderMoved()"></td>
+                </tr>
+
+                <tr>
+                    <td><label for="time">Time:</label></td>
+                    <td><input type="time" id="time" name="time" value="10:30"></td>
+                    <td><input type="range" min="0" max="1439" value="630" class="slider" id="timeSlider" name="timeSlider" oninput="timeSliderMoved()"></td>
+
+                </tr>
+
+                <tr>
+                    <td><label for="timezone">Time Zone:</label></td>
+                    <td><input type="text" id="timezone" name="timezone" value="5.5" disabled></td>
+                </tr>
+
+                <tr>
+                    <td colspan="2"><input type="button" value="Calculate" onclick=calculate()></td>
+                </tr>
+            </table>
+
+            <td>
+            <div id="chart_sunPath" style="width: 500px; height: 250px" ></div>
+            </td>
+
+            <td>
+                <div id="chart_Analemma" style="width: 500px; height: 250px" ></div>
+            </td>
+
+        </tr>
+    </table>
+
+    <br>
+<table>
+    <tr>
+        <td>
+            <table outline-width="1" class="data">
+
+                <caption>Solar Angles</caption>
+
+                <tr>
+                    <td>Declination (Degrees)</td>
+                    <td ><input type="text" id="declination" name="declination" disabled></input></td>
+                </tr>
+
+                <tr>
+                    <td>Elevation At Solar Noon (Degrees)</td>
+                    <td><input type="text" id="elevationAtSolarNoon" name="elevationAtSolarNoon" disabled></input></td>
+                </tr>
+
+                <tr>
+                    <td>Hour Angle (Degrees)</td>
+                    <td><input type="text" id="hourAngle" name="hourAngle" disabled></input></td>
+                </tr>
+
+                <tr>
+                    <td>Zenith (Degrees)</td>
+                    <td><input type="text" id="zenith" name="zenith" disabled></input></td>
+                </tr>
+
+                <tr>
+                    <td>Altitude (Degrees)</td>
+                    <td><input type="text" id="altitude" name="altitude" disabled></input></td>
+                </tr>
+
+                <tr>
+                    <td>Azimuth (Degrees)</td>
+                    <td><input type="text" id="azimuth" name="azimuth" disabled></input></td>
+                </tr>
+
+            </table>
+
+        </td>
+        <td>
+            <div id="chart_Sundial" style="width: 700px; height: 250px" ></div>
+        </td>
+    </tr>
+
+</table>
+
+
+    <br>
+
+    <table class="data">
+        <caption>Solar Timings</caption>
+
+        <tr>
+            <td>Solar Time</td>
+            <td><input type="text" id="solarTime" name="solarTime" disabled></input></td>
+        </tr>
+        <tr>
+            <td>Equation Of Time(Minutes)</td>
+            <td><input type="text" id="eqOfTime" name="eqOfTime" disabled></input></td>
+        </tr>
+
+        <tr>
+            <td>Time Offset(Minutes)</td>
+            <td ><input type="text" id="offset" name="offset" disabled></input> </td>
+        </tr>
+
+        <tr>
+            <td>Solar Noon (Minutes)</td>
+            <td><input type="text" id="solarNoon" name="solarNoon" disabled></input></td>
+        </tr>
+
+
+        <tr>
+            <td>Sunrise Actual (Minutes)</td>
+            <td><input type="text" id="sunriseActual" name="sunriseActual" disabled></input></td>
+        </tr>
+
+        <tr>
+            <td>Sunset Actual (Minutes)</td>
+            <td><input type="text" id="sunsetActual" name="sunsetActual" disabled></input></td>
+        </tr>
+
+        <tr>
+            <td>Sunrise Apparent (Minutes)</td>
+            <td><input type="text" id="sunriseApparent" name="sunriseApparent" disabled></input></td>
+        </tr>
+
+        <tr>
+            <td>Sunset Apparent (Minutes)</td>
+            <td><input type="text" id="sunsetApparent" name="sunsetApparent" disabled></input></td>
+        </tr>
+
+    </table>
+
+
+</form>
+</body>
+</html>
